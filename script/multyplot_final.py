@@ -5,6 +5,7 @@ from cartopy.mpl.gridliner import LongitudeFormatter, LatitudeFormatter
 import matplotlib.pyplot as plt
 import matplotlib.cm as cm
 import matplotlib.colors as mcolors
+from mpl_toolkits.axes_grid1 import Grid
 import numpy as np
 import xarray as xr
 
@@ -14,11 +15,11 @@ from geocat.viz import cmaps as gvcmaps
 # define plot
 def add_axes(fig, grid_space):
     ax = fig.add_subplot(grid_space, projection=ccrs.PlateCarree())
-    ax.coastlines(linewidth=0.5, alpha=0.6)
+    ax.coastlines(linewidth=0.5)
 
     # Add land to the subplot
     ax.add_feature(cfeature.LAND,
-                   facecolor="darkgray",
+                   facecolor="lightgray",
                    edgecolor='black',
                    linewidths=0.5,
                    zorder=2)
@@ -43,6 +44,8 @@ def add_axes(fig, grid_space):
     ax.xaxis.set_major_formatter(LongitudeFormatter(degree_symbol=''))
 
     return ax
+###################
+
 # define month
 def add_text(month):
     months = [
@@ -66,6 +69,9 @@ sst_mclm = sst.groupby('time.month').mean(dim='time')
 fig = plt.figure(figsize=(12, 8.2), constrained_layout=True)
 # Create gridspec to hold six subplots
 grid = fig.add_gridspec(ncols=4, nrows=3)
+#grid = Grid(fig, rect=111, nrows_ncols=(3, 4),axes_pad=0.25, label_mode='L')
+
+
 
 # Add the axes
 ax1 = add_axes(fig, grid[0, 0])
@@ -80,6 +86,7 @@ ax9 = add_axes(fig, grid[2, 0])
 ax10 = add_axes(fig, grid[2, 1])
 ax11 = add_axes(fig, grid[2, 2])
 ax12 = add_axes(fig, grid[2, 3])
+
 
 # Set plot index list
 plot_idxs = [0,1,2,3,4,5,6,7,8,9,10,11]
@@ -120,14 +127,15 @@ mappable = cm.ScalarMappable(norm=norm, cmap=cmap)
 ax=[ax1, ax2, ax3, ax4, ax5, ax6,ax7,ax8,ax9,ax10,ax11,ax12]
 cbar = fig.colorbar(mappable,
                  ax=[ax1, ax2, ax3, ax4, ax5, ax6,ax7,ax8,ax9,ax10,ax11,ax12],
-                 ticks=colorbounds,
+                 ticks=colorbounds[1:-1:2],
                  drawedges=True,
-                 orientation='horizontal',
-                 shrink=0.82,
-                 pad=0.01,
+                 orientation='vertical',
+                 shrink=0.90,
+                 pad=0.03,
                  aspect=35,
                  extendfrac='auto',
                  extendrect=True)
-
+cbar.set_label('SST (°C)',fontsize = 14)
+cbar.ax.tick_params(labelsize = 12)
 plt.savefig('multiexample.png',dpi = 300)
 
