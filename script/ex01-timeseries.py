@@ -89,5 +89,4 @@ plt.savefig("moving_avg.png",dpi=300)
 
 
 
-## test
-x = xr.open_dataset(r'G:\oisst\noaa_oisst_monthly.nc')
+

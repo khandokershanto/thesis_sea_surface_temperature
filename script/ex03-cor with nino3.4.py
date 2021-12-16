@@ -50,7 +50,7 @@ def areaave(indat, latS, latN, lonW, lonE):
 # -- Calculate nino3.4 index
 nino = areaave(nanm,-5,5,-170,-120)
 ninoSD=nino/nino.std(dim='time')
-rninoSD = nino.rolling(time=7, center=True).mean('time')
+rninoSD = ninoSD.rolling(time=7, center=True).mean('time')
 
 # -- Calculate bob area averaged sst
 bob = areaave(anm,5,25,80,100)
@@ -117,8 +117,6 @@ def make_fig(cor,reg, grid_space):
     )
     # Contouf-plot U data (for filled contours)
     fillplot = cor.plot.contourf(ax=ax, **kwargs)
-
-
 
     # Add land to the subplot
     ax.add_feature(cfeature.LAND,
