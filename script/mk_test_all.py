@@ -10,38 +10,13 @@ import matplotlib.colors as mcolors
 import geocat.viz.util as gvutil
 from geocat.viz import cmaps as gvcmaps
 
+# dataset from r
+da = xr.open_dataset(r'data\senslopeall.nc')
 
-# create an example dataset
-da = xr.open_dataset(r'data\noaa_oisst_v2_merged_1982_2020.nc')
-sst = da.sst
-date = sst.time
-ndate = len(date)
-ndate = np.arange(len(date))
-
-# define a function to compute a linear trend of a timeseries
-def linear_trend(x):
-    pf = np.polyfit(ndate, x, 1)
-    # we need to return a dataarray or else xarray's groupby won't be happy
-    return xr.DataArray(pf[0])
-
-def linear_trend(x):
-    date = x.time
-    ndate = np.arange(len(date))
-    pf = np.polyfit(ndate, x, 1)
-    # we need to return a dataarray or else xarray's groupby won't be happy
-    return xr.DataArray(pf[0]*120)
+mkt_all = da.layer*120
 
 
-# stack lat and lon into a single dimension called allpoints
-stacked = sst.stack(allpoints=['lat', 'lon'])
-# apply the function over allpoints to calculate the trend at each point
-trend = stacked.groupby('allpoints').apply(linear_trend)
-# unstack back to lat lon coordinates
-trend_unstacked = trend.unstack('allpoints')
-
-sst_clim = trend_unstacked
-sst_clim.lon
-
+# plot
 ##              PLOT Figure
 # Now plot mean SST climatology
 ############################################
@@ -67,7 +42,7 @@ gvutil.add_major_minor_ticks(ax, labelsize=14)
 gvutil.add_lat_lon_ticklabels(ax)
 
 gvutil.set_titles_and_labels(ax,
-                                 maintitle= 'SST Trend (1982-2020)',
+                                 maintitle= "Sen's Slope (1982-2020)" ,
                                  maintitlefontsize= 18,
                                  ylabel='Latitude',
                                  xlabel='Longitude',
@@ -79,20 +54,20 @@ ax.xaxis.set_major_formatter(LongitudeFormatter(degree_symbol=''))
 
 # Set contour levels
 #levels = np.arange(0.04, 0.25, 0.0)
-levels = np.linspace(0.04,0.25,11)
+levels = np.linspace(0.03,0.26,11)
 # Set colormap
 cmap = gvcmaps.BlueYellowRed
 
-p = ax.contourf(sst_clim.lon,
-                        sst_clim.lat,
-                        sst_clim.data,
-                        vmin=0.04,
-                        vmax=0.25,
+p = ax.contourf(mkt_all.longitude,
+                        mkt_all.latitude,
+                        mkt_all.data,
+                        vmin=0.03,
+                        vmax=0.26,
                         cmap=cmap,
                         levels=levels)
 
 # Set colorbounds of norm
-colorbounds = np.linspace(0.04,0.25,11)
+colorbounds = np.linspace(0.03,0.26,11)
 # Use cmap to create a norm and mappable for colorbar to be correctly plotted
 norm = mcolors.BoundaryNorm(colorbounds, cmap.N)
 mappable = cm.ScalarMappable(norm=norm, cmap=cmap)
@@ -111,4 +86,4 @@ cbar = plt.colorbar(mappable=mappable,ax=ax, cax=cax,
                  extendrect=True)
 cbar.set_label('°C/decade',fontsize = 12)
 cbar.ax.tick_params(labelsize = 12)
-plt.savefig('SST_Trend_1982-2019.png',dpi = 300)
+plt.savefig('MK_Trend_1982-2019.png',dpi = 300)
